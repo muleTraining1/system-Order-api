@@ -1,0 +1,12 @@
+MicrosoftSQL:
+ connection:
+  Host: "den1.mssql6.gear.host"
+  Port: "1433"
+  User: "customer4"
+  Password: "Ff4B!!8P901h"
+
+Http:
+ connection:
+  Host: "0.0.0.0"
+  Port: "8081"
+ 
