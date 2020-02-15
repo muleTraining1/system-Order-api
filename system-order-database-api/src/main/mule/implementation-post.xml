@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="implementation3FlowforPost" doc:id="2c6d0003-2875-4e64-b9fe-d2abfe008f80" >
+		<ee:transform doc:name="Transform Message" doc:id="cc051e54-9450-4d3b-a0ab-3c4367245417" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	orderID: payload.orderID,
+	placementDate: payload.placementDate,
+	customerId: payload.customerId,
+	customerName: payload.customerName,
+	status: payload.status,
+	totalPrice: payload.totalPrice,
+	orderItem: payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
+		itemId: orderItem.itemId,
+		itemName: orderItem.itemName,
+		price: orderItem.price,
+		quantity: orderItem.quantity
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="0fdecf66-f63a-469d-b3fa-c253b6287d7d" >
+			<route >
+				<db:bulk-insert doc:name="Bulk insert" doc:id="a562be01-b1ff-4530-8e3a-4150e9beee1f" config-ref="Database_Config">
+			<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
+	
+	orderID: payload.orderID as String,
+	itemId: orderItem.itemId as String,
+	quantity: orderItem.quantity,
+	itemName: orderItem.itemName,
+	price: orderItem.price
+}]]]></db:bulk-input-parameters>
+			<db:sql>insert into orderItems(orderId, itemId, itemCount, itemName, price) values
+ ( :orderID, :itemId, :quantity, :itemName, :price)</db:sql>
+		</db:bulk-insert>
+			</route>
+			<route >
+				<db:bulk-insert doc:name="Bulk insert" doc:id="d9b5d354-3d80-4911-b6db-e88b11d5ff26" config-ref="Database_Config">
+					<db:bulk-input-parameters ><![CDATA[#[output application/java
+---
+[{
+	orderID: payload.orderID as String,
+	placementDate: payload.placementDate,
+	customerName: payload.customerName as String,
+	status: payload.status as String,
+	customerID: payload.customerId,
+	totalPrice: payload.totalPrice
+}]]]]></db:bulk-input-parameters>
+					<db:sql >insert into orderMaster (orderID ,placementDate ,customerName ,	status ,customerID ,totalPrice )
+values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPrice)</db:sql>
+				</db:bulk-insert>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="60550548-6386-4826-b899-c00a129a45b5" message="order Created"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b5766d15-68e6-4721-80ae-a96a2691773c" type="ANY">
+				<flow-ref doc:name="Flow Reference" doc:id="dd81ae17-5d45-4204-aef9-620424746ef4" name="interface-order-db-apiFlow-Error"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

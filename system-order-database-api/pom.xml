@@ -24,15 +24,15 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
-				<configuration>
-				<sharedLibraries>
+			<configuration>
+                    <sharedLibraries>
                         <sharedLibrary>
                             <groupId>com.microsoft.sqlserver</groupId>
                             <artifactId>mssql-jdbc</artifactId>
                         </sharedLibrary>
                     </sharedLibraries>
                 </configuration>
-			</plugin>
+            </plugin>
 		</plugins>
 	</build>
 
@@ -65,6 +65,12 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>6.2.2.jre8</version>
+        </dependency>
+    	<dependency>
+            <groupId>com.mulesoft.modules</groupId>
+            <artifactId>mule-secure-configuration-property-module</artifactId>
+            <version>1.2.0</version>
+            <classifier>mule-plugin</classifier>
         </dependency>
     </dependencies>
 

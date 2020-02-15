@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
-    
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+   
     <flow name="system-order-db-api-main">
         <http:listener config-ref="system-order-db-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -14,7 +15,7 @@
         <apikit:router config-ref="system-order-db-api-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:BAD_REQUEST">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="adca14f7-78d7-4eba-ad56-2d23cd5c04d6">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -22,12 +23,13 @@ output application/json
 {message: "Bad request"}]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>
-                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="b3304bd7-637a-483b-a698-57c0cb27a4f2" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="32d49d80-b315-4ca9-94b1-e8324f78c461">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -35,12 +37,13 @@ output application/json
 {message: "Resource not found"}]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>
-                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="e675c7b7-bc1e-4fff-aa9c-7e5a257c57a0" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="df1039fe-0cde-4097-8889-59e84d559514">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -48,9 +51,10 @@ output application/json
 {message: "Method not allowed"}]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>
-                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="5ccf540d-db50-4320-b284-38d1724556af" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
                 <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
@@ -64,9 +68,10 @@ output application/json
                         <ee:set-variable variableName="httpStatus">406</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="8d9d874b-0380-407b-876d-dc13f3cc08af" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="df6bf53a-ae9b-45a3-9c2b-969ff083c628">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -74,9 +79,10 @@ output application/json
 {message: "Unsupported media type"}]]></ee:set-payload>
                     </ee:message>
                     <ee:variables>
-                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="9bc9d6b5-c7b5-46e9-bad6-c9e504e60028" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
             <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
                 <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
@@ -90,6 +96,7 @@ output application/json
                         <ee:set-variable variableName="httpStatus">501</ee:set-variable>
                     </ee:variables>
                 </ee:transform>
+				<flow-ref doc:name="Flow Reference" doc:id="d6a5fbeb-b8d1-4568-b1c7-e478397403d0" name="interface-order-db-apiFlow-Error"/>
             </on-error-propagate>
         </error-handler>
     </flow>
@@ -106,7 +113,9 @@ output application/json
         <apikit:console config-ref="system-order-db-api-config" />
         <error-handler>
             <on-error-propagate type="APIKIT:NOT_FOUND">
-                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
                     <ee:message>
                         <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -121,78 +130,45 @@ output application/json
         </error-handler>
     </flow>
     <flow name="patch:\orders\(order-id):application\json:system-order-db-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="order-id">attributes.uriParams.'order-id'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <logger level="INFO" message="patch:\orders\(order-id):application\json:system-order-db-api-config" />
-    </flow>
-    <flow name="get:\orders:system-order-db-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-[
-  {
-    orderID: 1,
-    placementDate: "2019-12-12",
-    customerId: 1,
-    status: "created",
-    totalPrice: 92,
-    orderItem: [
-      {
-        itemId: 1,
-        itemName: "testItem",
-        price: 23.00,
-        quantity: 4
-      }
-    ]
-  }
-]]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
-    <flow name="get:\orders\(order-id):system-order-db-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="order-id">attributes.uriParams.'order-id'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
+		<ee:transform doc:name="Transform Message" doc:id="cfb29c10-97f2-44dc-b4ee-9d50fe1b2085" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
 ---
 {
-  orderID: 1,
-  placementDate: "2019-12-12",
-  customerId: 1,
-  status: "created",
-  totalPrice: 92,
-  orderItem: [
-    {
-      itemId: 1,
-      itemName: "testItem",
-      price: 23.00,
-      quantity: 4
-    }
-  ]
 }]]></ee:set-payload>
-            </ee:message>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <flow name="get:\orders:system-order-db-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="dd065dfd-bd79-4eae-a1a0-b86edb1b7d68" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[attributes.queryParams.'customerId']]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <flow name="get:\orders\(order-id):system-order-db-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="ccbbd13a-551c-4c2b-83a6-ebcb815d483d">
+            <ee:variables>
+                <ee:set-variable variableName="order-id"><![CDATA[attributes.uriParams.'order-id']]></ee:set-variable>
+            </ee:variables>
         </ee:transform>
     </flow>
     <flow name="post:\orders:application\json:system-order-db-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
+		<flow-ref doc:name="Flow Reference" doc:id="18ee8b08-793e-4c00-8c46-f1c828b557a8" name="implementation3FlowforPost"/>
+    </flow>
+	<flow name="interface-order-db-apiFlow-Error" doc:id="c3105672-e6f5-4384-b467-8e63f82dd4e3" >
+		<ee:transform doc:name="Transform Message" doc:id="cfad28e2-2f9f-421d-9d6a-9307166f8a06" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-  message: "Successfully Created"
+	Errorcode:vars.httpStatus,
+	errorType:error.errorType,
+	message:error.description
 }]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
