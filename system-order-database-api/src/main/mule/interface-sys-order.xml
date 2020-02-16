@@ -130,15 +130,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="patch:\orders\(order-id):application\json:system-order-db-api-config">
-		<ee:transform doc:name="Transform Message" doc:id="cfb29c10-97f2-44dc-b4ee-9d50fe1b2085" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/java
----
-{
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="d99fdd05-c1b5-4073-84c2-2e3f66120b50" name="implementation-patch-ordersFlow"/>
     </flow>
     <flow name="get:\orders:system-order-db-api-config">
 		<ee:transform doc:name="Transform Message" doc:id="dd065dfd-bd79-4eae-a1a0-b86edb1b7d68" >
@@ -146,6 +138,7 @@ output application/java
 				<ee:set-payload ><![CDATA[attributes.queryParams.'customerId']]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="8eca3da3-ed17-4858-9235-69be7db7160c" name="implementationFlowForGetbyCustid"/>
     </flow>
     <flow name="get:\orders\(order-id):system-order-db-api-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="ccbbd13a-551c-4c2b-83a6-ebcb815d483d">
