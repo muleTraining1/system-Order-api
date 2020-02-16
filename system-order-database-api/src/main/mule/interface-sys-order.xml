@@ -5,11 +5,11 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
     <flow name="system-order-db-api-main">
         <http:listener config-ref="system-order-db-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:response>
             <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body>#[payload]</http:body>
-                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
         <apikit:router config-ref="system-order-db-api-config" />
@@ -153,9 +153,10 @@ output application/java
                 <ee:set-variable variableName="order-id"><![CDATA[attributes.uriParams.'order-id']]></ee:set-variable>
             </ee:variables>
         </ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="0f038b48-4e39-4d56-b353-89d7ba266150" name="implementationforgetbyorderID"/>
     </flow>
     <flow name="post:\orders:application\json:system-order-db-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="18ee8b08-793e-4c00-8c46-f1c828b557a8" name="implementation3FlowforPost"/>
+		<flow-ref doc:name="Flow Reference" doc:id="18ee8b08-793e-4c00-8c46-f1c828b557a8" name="implementationFlowforPost"/>
     </flow>
 	<flow name="interface-order-db-apiFlow-Error" doc:id="c3105672-e6f5-4384-b467-8e63f82dd4e3" >
 		<ee:transform doc:name="Transform Message" doc:id="cfad28e2-2f9f-421d-9d6a-9307166f8a06" >
@@ -164,9 +165,11 @@ output application/java
 output application/json
 ---
 {
+	timestamp: now(),
 	Errorcode:vars.httpStatus,
 	errorType:error.errorType,
-	message:error.description
+	message:error.message,
+	externalcorrelationid:error.correlationId
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>

@@ -5,8 +5,9 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
-	<flow name="implementation3FlowforPost" doc:id="2c6d0003-2875-4e64-b9fe-d2abfe008f80" >
-		<ee:transform doc:name="Transform Message" doc:id="cc051e54-9450-4d3b-a0ab-3c4367245417" >
+	<flow name="implementationFlowforPost" doc:id="8135c3a2-a041-4bb2-a485-e680317969a8" >
+		<logger level="DEBUG" doc:name="Logger" doc:id="fd034eae-7b1b-4f09-aa32-42e5ed6aa2d4" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="9c83fdf2-7c9b-4dd8-908f-93979404d47c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -27,9 +28,11 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<scatter-gather doc:name="Scatter-Gather" doc:id="0fdecf66-f63a-469d-b3fa-c253b6287d7d" >
+		<logger level="DEBUG" doc:name="Logger" doc:id="fe04e1a2-09bb-47da-adf2-1ac34fcb8122" message="#[payload]"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="8b1d3041-80b3-47db-943d-15aad8794d88" >
 			<route >
-				<db:bulk-insert doc:name="Bulk insert" doc:id="a562be01-b1ff-4530-8e3a-4150e9beee1f" config-ref="Database_Config">
+				<logger level="INFO" doc:name="Logger" doc:id="ca21afda-d78b-4884-9f8e-96d5ba9c5565" />
+				<db:bulk-insert doc:name="Bulk insert" doc:id="377d6b2c-e43c-4b40-9293-a7f125144a0c" config-ref="Database_Config">
 			<db:bulk-input-parameters><![CDATA[#[%dw 2.0
 output application/java
 ---
@@ -46,8 +49,10 @@ payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
 		</db:bulk-insert>
 			</route>
 			<route >
-				<db:bulk-insert doc:name="Bulk insert" doc:id="d9b5d354-3d80-4911-b6db-e88b11d5ff26" config-ref="Database_Config">
-					<db:bulk-input-parameters ><![CDATA[#[output application/java
+				<logger level="DEBUG" doc:name="Logger" doc:id="13d9a329-57e4-4711-ad01-12abf396c6af" message="#[payload]"/>
+				<db:bulk-insert doc:name="Bulk insert" doc:id="f476e702-73dd-4aa2-b1c4-ec88bbf2c466" config-ref="Database_Config">
+					<db:bulk-input-parameters ><![CDATA[#[%dw 2.0
+output application/java
 ---
 [{
 	orderID: payload.orderID as String,
@@ -62,10 +67,21 @@ values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPric
 				</db:bulk-insert>
 			</route>
 		</scatter-gather>
-		<logger level="INFO" doc:name="Logger" doc:id="60550548-6386-4826-b899-c00a129a45b5" message="order Created"/>
+		<logger level="DEBUG" doc:name="Logger" doc:id="4912b288-3c40-4996-8942-e563e3f89e00" message="#[payload]"/>
+		<set-variable value="order created" doc:name="Set Variable" doc:id="753f3c84-459b-4d98-9d44-3871f0a6bf4c" variableName="order"/>
+		<ee:transform doc:name="Transform Message" doc:id="b5aca1ea-1bc2-4e9e-a2fd-178035580b92" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:vars.order
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b5766d15-68e6-4721-80ae-a96a2691773c" type="ANY">
-				<flow-ref doc:name="Flow Reference" doc:id="dd81ae17-5d45-4204-aef9-620424746ef4" name="interface-order-db-apiFlow-Error"/>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="08343397-d20e-4433-946e-454f94001625" type="ANY">
+				<flow-ref doc:name="Flow Reference" doc:id="be1fd951-522b-4f03-a414-cd78cecc476c" name="interface-order-db-apiFlow-Error"/>
 			</on-error-propagate>
 		</error-handler>
 	</flow>
