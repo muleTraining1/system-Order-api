@@ -17,8 +17,9 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="9bc389c9-54ed-4d55-bfe1-ca50f06e8668" >
 		<db:mssql-connection host="${secure::MicrosoftSQL.connection.Host}" user="${secure::MicrosoftSQL.connection.User}" password="${secure::MicrosoftSQL.connection.Password}" port="${secure::MicrosoftSQL.connection.Port}" databaseName="${secure::MicrosoftSQL.connection.User}"/>
 	</db:config>
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="3f108ace-d355-4532-bfef-b0a6a4d80f15" file="dev.yaml" key="victory" >
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="3f108ace-d355-4532-bfef-b0a6a4d80f15" file="${mule.env}.yaml" key="${secret.key}" >
 		<secure-properties:encrypt algorithm="Blowfish" mode="ECB" />
 	</secure-properties:config>
+	<configuration doc:name="Configuration" doc:id="b4491817-3dd1-4e37-a9aa-021685fb66d4" defaultErrorHandler-ref="errorHandlingError_Handler" />
 	
 </mule>

@@ -38,7 +38,7 @@ payload map ( payload01 , indexOfPayload01 ) -> {
 		</ee:transform>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="15023526-254e-4bf9-967c-70e4dcb45eab" >
-				<flow-ref doc:name="Flow Reference" doc:id="6b7acf26-e9ba-4f38-97f4-f724f5e694f7" name="interface-order-db-apiFlow-Error"/>
+				<flow-ref doc:name="Flow Reference" doc:id="6b7acf26-e9ba-4f38-97f4-f724f5e694f7" name="interface-order-db-apiFlow-error"/>
 			</on-error-propagate>
 		</error-handler>
 	</flow>

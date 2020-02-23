@@ -79,10 +79,6 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="08343397-d20e-4433-946e-454f94001625" type="ANY">
-				<flow-ref doc:name="Flow Reference" doc:id="be1fd951-522b-4f03-a414-cd78cecc476c" name="interface-order-db-apiFlow-Error"/>
-			</on-error-propagate>
-		</error-handler>
+		
 	</flow>
 </mule>
