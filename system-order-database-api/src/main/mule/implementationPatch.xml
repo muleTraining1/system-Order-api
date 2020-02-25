@@ -8,11 +8,12 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<flow name="implementationPatchFlow" doc:id="fb549213-e6a7-4d50-8076-586158797d48" >
 		<logger level="INFO" doc:name="Logger" doc:id="8b468fd6-104f-4a5a-985e-c1623a55bb7d" message="#[payload]"/>
 		<db:update doc:name="Update" doc:id="3652ae5d-3721-434c-a0ca-54fce1c4c1ad" config-ref="Database_Config">
-			<db:sql >Update customer4.dbo.orderMaster SET status =:status where orderID=:orderId</db:sql>
-			<db:input-parameters ><![CDATA[{
+			<db:sql >Update customer4.dbo.orderMaster SET status =:status where orderID=:orderID</db:sql>
+			<db:input-parameters ><![CDATA[#[{
 	orderID: payload.orderId,
 	status: payload.status
-}]]></db:input-parameters>
+	
+}]]]></db:input-parameters>
 		</db:update>
 		<ee:transform doc:name="Transform Message" doc:id="5c280b95-96af-4a99-8e1f-9ff93cc05dc0" >
 			<ee:message >

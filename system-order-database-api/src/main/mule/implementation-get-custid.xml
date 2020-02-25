@@ -12,9 +12,9 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<db:sql>Select t1.orderId, t2.placementDate, t2.customerId, t2.status, t2.totalPrice, t1.orderItemId, t1.itemId, t1.itemCount, t1.price, t1.itemName
  from customer4.dbo.orderItems t1 INNER JOIN customer4.dbo.orderMaster t2 on t1.orderId=t2.orderId 
 where t2.customerId=:custID</db:sql>
-			<db:input-parameters><![CDATA[{
+			<db:input-parameters><![CDATA[#[{
 custID: attributes.queryParams.'customerId' as Number {format:""}
-}]]></db:input-parameters>
+}]]]></db:input-parameters>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="caaf6a91-4079-4c7d-a271-f2d1b41a7305" >
 			<ee:message >

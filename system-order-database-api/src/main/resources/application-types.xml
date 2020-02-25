@@ -15,6 +15,14 @@ type outputmetadata = {|
 
 ]]></types:shape>
     </types:type>
+    <types:type name="systemorderarray" format="json">
+      <types:shape format="weave" example="api/example/orderExampleArray.raml"><![CDATA[%dw 2.0
+
+type systemorderarray = Array<{|  orderID: Number {"typeId": "int"},   placementDate: String,   customerId: Number {"typeId": "int"},   status: String,   totalPrice: Number {"typeId": "int"},   orderItem: Array<{|    itemId: Number {"typeId": "int"},     itemName: String,     price: Number {"typeId": "double"},     quantity: Number {"typeId": "int"}  |}>
+|}> {"example": "[{\\\"orderID\\\":1,\\\"placementDate\\\":\\\"2019-12-12\\\",\\\"customerId\\\":1,\\\"status\\\":\\\"created\\\",\\\"totalPrice\\\":92,\\\"orderItem\\\":[{\\\"itemId\\\":1,\\\"itemName\\\":\\\"testItem\\\",\\\"price\\\":23.00,\\\"quantity\\\":4}]}]"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#9c83fdf2-7c9b-4dd8-908f-93979404d47c">
     <types:processor-declaration>
@@ -26,6 +34,15 @@ type outputmetadata = {|
       <types:output-event>
         <types:message>
           <types:payload type="outputmetadata"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#416f9d45-6eda-4b2f-8b6e-cd4867ba826f">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="systemorderarray"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>

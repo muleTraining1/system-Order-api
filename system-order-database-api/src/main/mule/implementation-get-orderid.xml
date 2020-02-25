@@ -24,20 +24,23 @@ output application/java
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
-payload map ( payload01 , indexOfPayload01 ) -> {
-	orderID: payload01.orderId as Number default 0 ,
-	placementDate: payload01.placementDate default "",
-	customerId: payload01.customerID default 0,
-	status: payload01.status default "",
-	totalPrice: payload01.totalPrice default 0,
-	"orderItem": [{
-		itemId: payload01.itemId as Number default 0,
-		itemName: payload01.itemName default "",
-		price: payload01.price default 0,
-		quantity: payload01.itemCount default 0
-	}]
+(payload  groupBy $.orderID) pluck(v,k,i) -> {
+	orderID: v.orderId[0] as Number default 0,
+	placementDate: v.placementDate[0] default "",
+	customerId: v.customerID[0] default 0,
+	status: v.status[0] default "",
+	totalPrice: v.totalPrice[0] default 0,
+	orderItem:v map(x,y)-> {
+		itemId: x.itemId as Number default 0,
+		itemName: x.itemName default "",
+		price: x.price default 0,
+		quantity: x.itemCount default 0
+	}
+}
 
-}]]></ee:set-payload>
+
+
+]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 				<logger level="DEBUG" doc:name="Logger" doc:id="3b82f54c-91f6-4403-b3ef-60e7e1ee4c8d" message="#[payload]"/>
@@ -47,10 +50,5 @@ payload map ( payload01 , indexOfPayload01 ) -> {
 				<logger level="DEBUG" doc:name="Logger" doc:id="cabe139c-fa27-4d56-98de-0aaa4c5a3021" message="#[payload]"/>
 			</otherwise>
 		</choice>
-		<error-handler >
-			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="cb3073b4-3580-4ba1-9b69-dbc6740dfcce" type="ANY">
-				<flow-ref doc:name="Flow Reference" doc:id="ab54da71-6cb2-4066-8539-73906444d5a5" name="interface-order-db-apiFlow-error"/>
-			</on-error-propagate>
-		</error-handler>
 	</flow>
 </mule>

@@ -89,8 +89,15 @@ output application/json
                 </ee:transform>
 				<flow-ref doc:name="Flow Reference" doc:id="7b787ba9-8579-460f-9faa-a7a93cf2d3f3" name="interface-order-db-apiFlow-error"/>
             </on-error-propagate>
-           <on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="a1c1def4-03bc-409d-8d02-1c2640fbc3e5" type="ANY">
-				<flow-ref doc:name="Flow Reference" doc:id="559590e1-dd45-4482-9da1-79ec6409603f" name="interface-order-db-apiFlow-error"/>
+           
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="43243fe3-b32a-4a33-be17-d1f678fcbeb5" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION">
+				<flow-ref doc:name="Flow Reference" doc:id="d97eb5fd-b4cf-445d-8505-f0b71b8f9777" name="interface-order-db-apiFlow-error"/>
+			</on-error-propagate>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ae74203e-65c0-4114-94f1-87f9427d1939" type="EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED">
+			<flow-ref doc:name="Flow Reference" doc:id="0c239016-4705-45e2-a2c7-19849747b25a" name="interface-order-db-apiFlow-error"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3f028c41-7053-4fa3-8451-789c4fb332b3" type="ANY">
+				<flow-ref doc:name="Flow Reference" doc:id="483f7ab3-e4b3-46ba-abdb-6c6d6777d473" name="interface-order-db-apiFlow-error"/>
 			</on-error-propagate>
 	</error-handler>
 		<flow name="interface-order-db-apiFlow-error" doc:id="2db06760-9699-43cf-9b5d-4c874ece74bf" >
