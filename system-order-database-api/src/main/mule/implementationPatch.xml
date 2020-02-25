@@ -1,9 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="implementationPatchFlow" doc:id="fb549213-e6a7-4d50-8076-586158797d48" >
-		<logger level="INFO" doc:name="Logger" doc:id="8b468fd6-104f-4a5a-985e-c1623a55bb7d" message="need to implement"/>
-	</flow>
+		<logger level="INFO" doc:name="Logger" doc:id="8b468fd6-104f-4a5a-985e-c1623a55bb7d" message="#[payload]"/>
+		<db:update doc:name="Update" doc:id="3652ae5d-3721-434c-a0ca-54fce1c4c1ad" config-ref="Database_Config">
+			<db:sql >Update customer4.dbo.orderMaster SET status =:status where orderID=:orderId</db:sql>
+			<db:input-parameters ><![CDATA[{
+	orderID: payload.orderId,
+	status: payload.status
+}]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="5c280b95-96af-4a99-8e1f-9ff93cc05dc0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	orderID: payload.orderId,
+	status: payload.status
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ea033a46-b567-4918-83ff-02a7b3fede55" >
+				<flow-ref doc:name="Flow Reference" doc:id="f3bfea8f-b98e-44ab-b1fc-d6383d1aaa3e" name="interface-order-db-apiFlow-error"/>
+			</on-error-propagate>
+		</error-handler>
+	
+</flow>
 </mule>
