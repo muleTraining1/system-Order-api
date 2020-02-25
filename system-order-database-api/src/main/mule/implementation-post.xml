@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
 	<flow name="implementationFlowforPost" doc:id="8135c3a2-a041-4bb2-a485-e680317969a8" >
-		<logger level="DEBUG" doc:name="Logger" doc:id="fd034eae-7b1b-4f09-aa32-42e5ed6aa2d4" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="fd034eae-7b1b-4f09-aa32-42e5ed6aa2d4" message="Order creation flow started.and Request has been received"/>
 		<ee:transform doc:name="Transform Message" doc:id="9c83fdf2-7c9b-4dd8-908f-93979404d47c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -28,61 +28,46 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="DEBUG" doc:name="Logger" doc:id="fe04e1a2-09bb-47da-adf2-1ac34fcb8122" message="#[payload]"/>
-		<scatter-gather doc:name="Scatter-Gather" doc:id="8b1d3041-80b3-47db-943d-15aad8794d88" >
-			<route >
-				<logger level="INFO" doc:name="Logger" doc:id="ca21afda-d78b-4884-9f8e-96d5ba9c5565" />
-				<try doc:name="Try" doc:id="0604b991-b01a-4ab4-bca6-3012532c7686" >
-					<db:bulk-insert doc:name="Bulk insert" doc:id="377d6b2c-e43c-4b40-9293-a7f125144a0c" config-ref="Database_Config">
-			<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+		<logger level="INFO" doc:name="Logger" doc:id="b574e550-6361-47ff-94a9-ab5a96436eec" message="Values are going to stored in Variable"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="fb984582-b9a5-4b4a-ace1-e2e652816684" variableName="myvar"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b8dbaace-1abe-46c8-bf2f-4078afd278d5" message="Going to trigger OrderMaster Table to insert Value"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="377d6b2c-e43c-4b40-9293-a7f125144a0c" config-ref="Database_Config">
+						<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+
 output application/java
 ---
-payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
+[{
+	orderID:vars.myvar.orderID ,
+	placementDate: vars.myvar.placementDate,
+	customerName: vars.myvar.customerName as String,
+	status: vars.myvar.status as String,
+	customerID: vars.myvar.customerId,
+	totalPrice: vars.myvar.totalPrice
+}]]]]></db:bulk-input-parameters>
+						<db:sql>insert into orderMaster (orderID ,placementDate ,customerName ,	status ,customerID ,totalPrice )
+values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPrice)</db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="0e46c558-9adf-49e1-bf45-f3ed1e11e808" message="After The success insert from orderMaster Table values are going to insert in orderItem Table"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="f476e702-73dd-4aa2-b1c4-ec88bbf2c466" config-ref="Database_Config">
+					<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+vars.myvar.orderItem map ( orderItem , indexOfOrderItem ) -> {
 	
-	orderID: payload.orderID as String,
+	orderID: vars.myvar.orderID as String,
 	itemId: orderItem.itemId as String,
 	quantity: orderItem.quantity,
 	itemName: orderItem.itemName,
 	price: orderItem.price
 }]]]></db:bulk-input-parameters>
-			<db:sql>insert into orderItems(orderId, itemId, itemCount, itemName, price) values
- ( :orderID, :itemId, :quantity, :itemName, :price)</db:sql>
-		</db:bulk-insert>
-					<error-handler >
-						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="738f7c75-f6f5-40a8-84e4-c35fc4f04ddd" type="ANY">
-							<flow-ref doc:name="Flow Reference" doc:id="558acc3e-ec75-48f1-b80c-60a2c7839f77" name="interface-order-db-apiFlow-error"/>
-						</on-error-propagate>
-					</error-handler>
-				</try>
-			</route>
-			<route >
-				<logger level="DEBUG" doc:name="Logger" doc:id="13d9a329-57e4-4711-ad01-12abf396c6af" message="#[payload]"/>
-				<try doc:name="Try" doc:id="922186c9-a40c-4d95-88c3-78628b031ea1" >
-					<db:bulk-insert doc:name="Bulk insert" doc:id="f476e702-73dd-4aa2-b1c4-ec88bbf2c466" config-ref="Database_Config">
-					<db:bulk-input-parameters><![CDATA[#[%dw 2.0
-output application/java
----
-[{
-	orderID: payload.orderID as String,
-	placementDate: payload.placementDate,
-	customerName: payload.customerName as String,
-	status: payload.status as String,
-	customerID: payload.customerId,
-	totalPrice: payload.totalPrice
-}]]]]></db:bulk-input-parameters>
-					<db:sql>insert into orderMaster (orderID ,placementDate ,customerName ,	status ,customerID ,totalPrice )
-values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPrice)</db:sql>
+					<db:sql>insert into orderItems(orderId, itemId, itemCount, itemName, price) values
+ ( :orderID, :itemId, :quantity, :itemName, :price)
+
+</db:sql>
 				</db:bulk-insert>
-					<error-handler >
-						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2b21c17b-6b00-4a1e-bfb1-5fbd0bc391d1" type="ANY">
-							<flow-ref doc:name="Flow Reference" doc:id="084b03a9-3cf5-4984-be9c-901d9d74f6e0" name="interface-order-db-apiFlow-error"/>
-						</on-error-propagate>
-					</error-handler>
-				</try>
-			</route>
-		</scatter-gather>
-		<logger level="DEBUG" doc:name="Logger" doc:id="4912b288-3c40-4996-8942-e563e3f89e00" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="4912b288-3c40-4996-8942-e563e3f89e00" message="Order Created successfully.and HttpStatus code set to 201"/>
 		<set-variable value="201" doc:name="Set Variable" doc:id="753f3c84-459b-4d98-9d44-3871f0a6bf4c" variableName="httpStatus"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3ea98fc8-dfdf-4fff-b301-05e733a4fe12" message="Going to send Response to end user for Successful order creation"/>
 		<ee:transform doc:name="Transform Message" doc:id="b5aca1ea-1bc2-4e9e-a2fd-178035580b92" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
