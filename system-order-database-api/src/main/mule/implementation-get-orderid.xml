@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="implementationforgetbyorderID" doc:id="a1e0a9f2-4a7c-4b81-88c3-131ea52ba91b" >
 		<logger level="DEBUG" doc:name="Logger" doc:id="081139bb-8da2-4c54-b042-309cefadcf15" message="#[payload]"/>
-		<db:select doc:name="Select" doc:id="2e5034a0-bc3b-47a2-bfe1-6082c0754063" config-ref="Database_Config">
+		<db:select doc:name="Select" doc:id="2e5034a0-bc3b-47a2-bfe1-6082c0754063" config-ref="Database_Config" queryTimeout="3">
 			<db:sql >Select t1.orderId, t2.placementDate, t2.customerID, t2.status, t2.totalPrice, t1.orderItemId, t1.itemId, t1.itemCount, t1.price, t1.itemName
  from orderItems t1 INNER JOIN orderMaster t2 on t1.orderId=t2.orderId  where t1.orderId=:orderID</db:sql>
 			<db:input-parameters ><![CDATA[#[%dw 2.0

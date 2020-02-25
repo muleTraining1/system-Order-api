@@ -48,6 +48,11 @@ payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
 			<db:sql>insert into orderItems(orderId, itemId, itemCount, itemName, price) values
  ( :orderID, :itemId, :quantity, :itemName, :price)</db:sql>
 		</db:bulk-insert>
+					<error-handler >
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="738f7c75-f6f5-40a8-84e4-c35fc4f04ddd" type="ANY">
+							<flow-ref doc:name="Flow Reference" doc:id="558acc3e-ec75-48f1-b80c-60a2c7839f77" name="interface-order-db-apiFlow-error"/>
+						</on-error-propagate>
+					</error-handler>
 				</try>
 			</route>
 			<route >
@@ -68,18 +73,23 @@ output application/java
 					<db:sql>insert into orderMaster (orderID ,placementDate ,customerName ,	status ,customerID ,totalPrice )
 values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPrice)</db:sql>
 				</db:bulk-insert>
+					<error-handler >
+						<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2b21c17b-6b00-4a1e-bfb1-5fbd0bc391d1" type="ANY">
+							<flow-ref doc:name="Flow Reference" doc:id="084b03a9-3cf5-4984-be9c-901d9d74f6e0" name="interface-order-db-apiFlow-error"/>
+						</on-error-propagate>
+					</error-handler>
 				</try>
 			</route>
 		</scatter-gather>
 		<logger level="DEBUG" doc:name="Logger" doc:id="4912b288-3c40-4996-8942-e563e3f89e00" message="#[payload]"/>
-		<set-variable value="order created" doc:name="Set Variable" doc:id="753f3c84-459b-4d98-9d44-3871f0a6bf4c" variableName="order"/>
+		<set-variable value="201" doc:name="Set Variable" doc:id="753f3c84-459b-4d98-9d44-3871f0a6bf4c" variableName="httpStatus"/>
 		<ee:transform doc:name="Transform Message" doc:id="b5aca1ea-1bc2-4e9e-a2fd-178035580b92" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	message:vars.order
+	message:"order Created"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
