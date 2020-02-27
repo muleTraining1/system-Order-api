@@ -12,13 +12,18 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<db:sql>Select t1.orderId, t2.placementDate, t2.customerId, t2.status, t2.totalPrice, t1.orderItemId, t1.itemId, t1.itemCount, t1.price, t1.itemName
  from customer4.dbo.orderItems t1 INNER JOIN customer4.dbo.orderMaster t2 on t1.orderId=t2.orderId 
 where t2.customerId=:custID</db:sql>
-			<db:input-parameters><![CDATA[#[{
+			<db:input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+{
 custID: attributes.queryParams.'customerId' as Number {format:""}
 }]]]></db:input-parameters>
 		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="caaf6a91-4079-4c7d-a271-f2d1b41a7305" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+		<choice doc:name="Choice" doc:id="9f3225ef-7844-4178-a709-33c53e19030f" >
+			<when expression="#[sizeOf(payload) != 0]">
+				<ee:transform doc:name="Transform Message" doc:id="caaf6a91-4079-4c7d-a271-f2d1b41a7305">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
 ---
 payload map ( payload01 , indexOfPayload01 ) -> {
@@ -36,6 +41,13 @@ payload map ( payload01 , indexOfPayload01 ) -> {
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="3952d8ee-43a5-47ee-9945-8722486c428e" message="#[payload]"/>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="54f237ff-7a77-4353-85d1-42402269c4a1" type="CUSTOMER:IDNOTEXISTS" description="The Customer ID does not exist"/>
+				<logger level="INFO" doc:name="Logger" doc:id="61970a69-8c7f-4eaf-86c8-6d942580be46" message="#[payload]"/>
+			</otherwise>
+		</choice>
 		<error-handler >
 			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="15023526-254e-4bf9-967c-70e4dcb45eab" >
 				<flow-ref doc:name="Flow Reference" doc:id="6b7acf26-e9ba-4f38-97f4-f724f5e694f7" name="interface-order-db-apiFlow-error"/>
