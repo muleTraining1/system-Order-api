@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+   
+    <flow name="system-order-db-api-main">
+        <http:listener config-ref="system-order-db-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="system-order-db-api-config" />
+        
+    </flow>
+    <flow name="system-order-db-api-console">
+        <http:listener config-ref="system-order-db-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="system-order-db-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="patch:\orders\(order-id):application\json:system-order-db-api-config">
+		<flow-ref doc:name="Flow Reference" doc:id="f0489e93-79e1-496c-8e59-cbdbc515ea61" name="implementationPatchFlow"/>
+    </flow>
+    <flow name="get:\orders:system-order-db-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="dd065dfd-bd79-4eae-a1a0-b86edb1b7d68" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[attributes.queryParams.'customerId']]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="8eca3da3-ed17-4858-9235-69be7db7160c" name="get-custid-implementation-orderFlow"/>
+    </flow>
+    <flow name="get:\orders\(order-id):system-order-db-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="ccbbd13a-551c-4c2b-83a6-ebcb815d483d">
+            <ee:variables>
+                <ee:set-variable variableName="order-id"><![CDATA[attributes.uriParams.'order-id']]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="0f038b48-4e39-4d56-b353-89d7ba266150" name="implementationforgetbyorderID"/>
+    </flow>
+    <flow name="post:\orders:application\json:system-order-db-api-config">
+		<flow-ref doc:name="Flow Reference" doc:id="18ee8b08-793e-4c00-8c46-f1c828b557a8" name="implementationFlowforPost"/>
+    </flow>
+<flow name="interface-order-db-apiFlow-error" doc:id="8cc85457-a81c-42eb-8844-f92ddfde2b57" >
+		<ee:transform doc:name="Transform Message" doc:id="5b4a8324-6113-4fdc-bf6b-62621cb4e60e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	timestamp: now(),
+	Errorcode:vars.httpStatus,
+	errorType:error.errorType,
+	message:error.description,
+	externalcorrelationid:error.correlationId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

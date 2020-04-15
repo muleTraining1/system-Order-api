@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="implementationFlowforPost" doc:id="8135c3a2-a041-4bb2-a485-e680317969a8" >
+		<logger level="INFO" doc:name="Logger" doc:id="fd034eae-7b1b-4f09-aa32-42e5ed6aa2d4" message="Order creation flow started.and Request has been received"/>
+		<ee:transform doc:name="Transform Message" doc:id="9c83fdf2-7c9b-4dd8-908f-93979404d47c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	orderID: payload.orderID,
+	placementDate: payload.placementDate,
+	customerId: payload.customerId,
+	customerName: payload.customerName,
+	status: payload.status,
+	totalPrice: payload.totalPrice,
+	orderItem: payload.orderItem map ( orderItem , indexOfOrderItem ) -> {
+		itemId: orderItem.itemId,
+		itemName: orderItem.itemName,
+		price: orderItem.price,
+		quantity: orderItem.quantity
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="b574e550-6361-47ff-94a9-ab5a96436eec" message="Values are going to stored in Variable"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="fb984582-b9a5-4b4a-ace1-e2e652816684" variableName="myvar"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b8dbaace-1abe-46c8-bf2f-4078afd278d5" message="Going to trigger OrderMaster Table to insert Value"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="377d6b2c-e43c-4b40-9293-a7f125144a0c" config-ref="Database_Config">
+						<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+
+output application/java
+---
+[{
+	orderID:vars.myvar.orderID ,
+	placementDate: vars.myvar.placementDate,
+	customerName: vars.myvar.customerName as String,
+	status: vars.myvar.status as String,
+	customerID: vars.myvar.customerId,
+	totalPrice: vars.myvar.totalPrice
+}]]]]></db:bulk-input-parameters>
+						<db:sql>insert into orderMaster (orderID ,placementDate ,customerName ,	status ,customerID ,totalPrice )
+values(:orderID ,:placementDate ,:customerName ,:status ,:customerID ,:totalPrice)</db:sql>
+		</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="0e46c558-9adf-49e1-bf45-f3ed1e11e808" message="After The success insert from orderMaster Table values are going to insert in orderItem Table"/>
+		<db:bulk-insert doc:name="Bulk insert" doc:id="f476e702-73dd-4aa2-b1c4-ec88bbf2c466" config-ref="Database_Config">
+					<db:bulk-input-parameters><![CDATA[#[%dw 2.0
+output application/java
+---
+vars.myvar.orderItem map ( orderItem , indexOfOrderItem ) -> {
+	
+	orderID: vars.myvar.orderID as String,
+	itemId: orderItem.itemId as String,
+	quantity: orderItem.quantity,
+	itemName: orderItem.itemName,
+	price: orderItem.price
+}]]]></db:bulk-input-parameters>
+					<db:sql>insert into orderItems(orderId, itemId, itemCount, itemName, price) values
+ ( :orderID, :itemId, :quantity, :itemName, :price)
+
+</db:sql>
+				</db:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="4912b288-3c40-4996-8942-e563e3f89e00" message="Order Created successfully.and HttpStatus code set to 201"/>
+		<set-variable value="201" doc:name="Set Variable" doc:id="753f3c84-459b-4d98-9d44-3871f0a6bf4c" variableName="httpStatus"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3ea98fc8-dfdf-4fff-b301-05e733a4fe12" message="Going to send Response to end user for Successful order creation"/>
+		<ee:transform doc:name="Transform Message" doc:id="b5aca1ea-1bc2-4e9e-a2fd-178035580b92" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"order Created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		
+	</flow>
+</mule>

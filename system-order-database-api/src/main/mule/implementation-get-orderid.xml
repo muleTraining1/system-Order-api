@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="implementationforgetbyorderID" doc:id="a1e0a9f2-4a7c-4b81-88c3-131ea52ba91b" >
+		<logger level="DEBUG" doc:name="Logger" doc:id="081139bb-8da2-4c54-b042-309cefadcf15" message="#[payload]"/>
+		<db:select doc:name="Select" doc:id="2e5034a0-bc3b-47a2-bfe1-6082c0754063" config-ref="Database_Config" queryTimeout="3">
+			<db:sql >Select t1.orderId, t2.placementDate, t2.customerID, t2.status, t2.totalPrice, t1.orderItemId, t1.itemId, t1.itemCount, t1.price, t1.itemName
+ from orderItems t1 INNER JOIN orderMaster t2 on t1.orderId=t2.orderId  where t1.orderId=:orderID</db:sql>
+			<db:input-parameters ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+		orderID: attributes.uriParams.'order-id' as Number{format:""}
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="635ed0b5-f8a2-4bb3-b1c5-434a6d5b9318" >
+			<when expression="#[sizeOf(payload) != 0]">
+				<ee:transform doc:name="Transform Message" doc:id="416f9d45-6eda-4b2f-8b6e-cd4867ba826f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+(payload  groupBy $.orderID) pluck(v,k,i) -> {
+	orderID: v.orderId[0] as Number default 0,
+	placementDate: v.placementDate[0] default "",
+	customerId: v.customerID[0] default 0,
+	status: v.status[0] default "",
+	totalPrice: v.totalPrice[0] default 0,
+	orderItem:v map(x,y)-> {
+		itemId: x.itemId as Number default 0,
+		itemName: x.itemName default "",
+		price: x.price default 0,
+		quantity: x.itemCount default 0
+	}
+}
+
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<logger level="DEBUG" doc:name="Logger" doc:id="3b82f54c-91f6-4403-b3ef-60e7e1ee4c8d" message="#[payload]"/>
+			</when>
+			<otherwise >
+				<raise-error doc:name="Raise error" doc:id="89617cec-6e1e-405b-8072-ff7df1972536" type="ORDER:IDNOTEXISTS" description="The customer id not exists "/>
+				<logger level="DEBUG" doc:name="Logger" doc:id="cabe139c-fa27-4d56-98de-0aaa4c5a3021" message="#[payload]"/>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

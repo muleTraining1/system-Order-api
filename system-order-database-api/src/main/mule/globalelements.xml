@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	 <http:listener-config name="system-order-db-api-httpListenerConfig">
+        <http:listener-connection host="${secure::Http.connection.Host}" port="${secure::Http.connection.Port}" />
+    </http:listener-config>
+    <apikit:config name="system-order-db-api-config" api="system-order-db-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="9bc389c9-54ed-4d55-bfe1-ca50f06e8668" >
+		<db:mssql-connection host="${secure::MicrosoftSQL.connection.Host}" user="${secure::MicrosoftSQL.connection.User}" password="${secure::MicrosoftSQL.connection.Password}" port="${secure::MicrosoftSQL.connection.Port}" databaseName="${secure::MicrosoftSQL.connection.User}"/>
+	</db:config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="3f108ace-d355-4532-bfef-b0a6a4d80f15" file="dev.yaml" key="victory" >
+		<secure-properties:encrypt algorithm="Blowfish" mode="ECB" />
+	</secure-properties:config>
+	<configuration doc:name="Configuration" doc:id="b4491817-3dd1-4e37-a9aa-021685fb66d4" defaultErrorHandler-ref="errorHandlingError_Handler" />
+	
+</mule>
