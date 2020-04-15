@@ -100,20 +100,5 @@ output application/json
 				<flow-ref doc:name="Flow Reference" doc:id="483f7ab3-e4b3-46ba-abdb-6c6d6777d473" name="interface-order-db-apiFlow-error"/>
 			</on-error-propagate>
 	</error-handler>
-		<flow name="interface-order-db-apiFlow-error" doc:id="2db06760-9699-43cf-9b5d-4c874ece74bf" >
-		<ee:transform doc:name="Transform Message" doc:id="bc4e4d95-d22b-4c87-94c6-19bc785e11a2" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	timestamp: now(),
-	Errorcode:vars.httpStatus,
-	errorType:error.errorType,
-	message:error.description,
-	externalcorrelationid:error.correlationId
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-	</flow>
+		
 	</mule>

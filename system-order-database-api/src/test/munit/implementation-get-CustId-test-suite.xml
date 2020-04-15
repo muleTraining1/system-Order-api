@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-get-CustId-test-suite.xml" />
+	<munit:test name="implementation-get-CustId-test-suite-get-custid-implementation-orderFlowTest" doc:id="aba84b17-2159-49cd-b5bc-cfc909223dca" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a53c228b-58aa-46e1-86fa-270bb3f72638" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Select" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/java ---  readUrl("classpath://ExOutput.json", "application/json")]
+' mediaType="application/java" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="93fa7686-41b4-450c-8d97-82fdd636e6f8" >
+				<munit:attributes value='#[
+{
+"queryParams":
+{
+"custID":1
+}
+}]' />
+
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get-custid-implementation-orderFlow" doc:id="838d2a48-ce28-4323-984f-c7a15a4e58cc" name="get-custid-implementation-orderFlow"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="920758e3-033e-4e43-b7fe-0aefc39a68d8" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-get-CustId-test-suite-get-custid-implementation-orderFlowTestForError" doc:id="ab5631a2-a5e5-4656-8a9f-0cc57c09912a" description="Test" expectedErrorType="ORDER:VALUEISNULL" expectedErrorDescription="The Customer id doesnt exist">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0ef78f59-b457-4c00-953b-4716b17ce561" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Select" attributeName="doc:name" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/java ---  []]
+" mediaType="application/java" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="2e981766-8782-43fa-a560-c8fe5d6ae0ff" >
+				<munit:attributes value='#[
+{
+"queryParams":
+{
+"custID":1
+}
+}]' />
+
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get-custid-implementation-orderFlow" doc:id="fb9f8e03-1581-4d95-9389-11bc9b737eed" name="get-custid-implementation-orderFlow" />
+		
+</munit:execution>
+	
+</munit:test>
+	
+
+
+</mule>

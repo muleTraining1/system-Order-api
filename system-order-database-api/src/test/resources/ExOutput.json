@@ -1,0 +1,17 @@
+
+[ {
+    "orderID": "1",
+    "placementDate": "2019-12-12",
+    "customerId": "1",
+    "status": "created",
+    "totalPrice": 92,
+    "orderItem": [
+        {
+          "itemId": 1,
+          "itemName": "testItem",
+          "price": 23.00,
+          "quantity": 4
+        }
+
+    ]
+  }]

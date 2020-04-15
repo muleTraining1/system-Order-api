@@ -53,7 +53,7 @@ output application/json
 				<ee:set-payload ><![CDATA[attributes.queryParams.'customerId']]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<flow-ref doc:name="Flow Reference" doc:id="8eca3da3-ed17-4858-9235-69be7db7160c" name="implementationFlowForGetbyCustid"/>
+		<flow-ref doc:name="Flow Reference" doc:id="8eca3da3-ed17-4858-9235-69be7db7160c" name="get-custid-implementation-orderFlow"/>
     </flow>
     <flow name="get:\orders\(order-id):system-order-db-api-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="ccbbd13a-551c-4c2b-83a6-ebcb815d483d">
@@ -66,5 +66,20 @@ output application/json
     <flow name="post:\orders:application\json:system-order-db-api-config">
 		<flow-ref doc:name="Flow Reference" doc:id="18ee8b08-793e-4c00-8c46-f1c828b557a8" name="implementationFlowforPost"/>
     </flow>
-
+<flow name="interface-order-db-apiFlow-error" doc:id="8cc85457-a81c-42eb-8844-f92ddfde2b57" >
+		<ee:transform doc:name="Transform Message" doc:id="5b4a8324-6113-4fdc-bf6b-62621cb4e60e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	timestamp: now(),
+	Errorcode:vars.httpStatus,
+	errorType:error.errorType,
+	message:error.description,
+	externalcorrelationid:error.correlationId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
